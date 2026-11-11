@@ -84,6 +84,30 @@ chrome-devtools MCP 导航 github.com 同样会 `ERR_CONNECTION_TIMED_OUT`。导
 
 另外页面会偶发重启导致 **pageId 变化**，每步操作前先 `list_pages` 确认。
 
+### 5. 大量小文件走 git 传输会卡死 —— 改用 Git Data API
+
+同一个 `.git` 仓库，`git push` 传 7 个文件可以，但改成 GitHub API 通道后更可控、更快。
+另外注意：云盘备份脚本 `cmsync.py upload` **不会排除 `.git/` 目录**（只有 `sweep` 才排除），
+上传一个 git 仓库目录时会把 `.git` 里的几十个 object 文件也传一遍，导致极慢（实测 17 分钟未完成）。
+
+**解法：先打包再上传单个文件。**
+
+```bash
+# 用 Python 打包（Windows Git Bash 没有 zip 命令）
+python - <<'PYEOF'
+import zipfile, os
+base = r"C:\path\to\repo"
+out  = r"C:\path\to\repo.zip"
+files = ["README.md","LICENSE",".gitignore","notes/a.md"]
+with zipfile.ZipFile(out,"w",zipfile.ZIP_DEFLATED) as z:
+    for f in files:
+        z.write(os.path.join(base, f.replace("/", os.sep)), f)
+PYEOF
+```
+
+注意 `git archive` 打包的是**本地 HEAD**，不是远端最新状态。本地与远端不一致时（尤其是用 API 推上去的提交），
+要用工作区文件直接打包，否则会漏文件。
+
 ## 排查清单
 
 遇到「某个域名不通」时，按此顺序确认：
