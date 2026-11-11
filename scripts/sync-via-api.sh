@@ -20,6 +20,14 @@ for f in "${FILES[@]}"; do
 done
 
 TREE_JSON="{\"tree\":[$(IFS=,; echo "${ENTRIES[*]}")]}"
+# 关键：带 base_tree = 当前分支的 tree sha，否则整个树被替换，未列出的文件会丢失
+BASE_TREE=$(gh api "repos/$REPO/git/trees/$BRANCH" --jq '.sha' 2>/dev/null || echo "")
+if [ -n "$BASE_TREE" ]; then
+  TREE_JSON="{\"base_tree\":\"$BASE_TREE\",\"tree\":[$(IFS=,; echo "${ENTRIES[*]}")]}"
+  echo "base_tree -> $BASE_TREE"
+else
+  echo "base_tree -> (无，新建树)"
+fi
 TREE_SHA=$(echo "$TREE_JSON" | gh api --method POST "repos/$REPO/git/trees" --input - --jq '.sha')
 [ -n "$TREE_SHA" ] || { echo "TREE FAIL" >&2; exit 1; }
 echo "tree -> $TREE_SHA"
