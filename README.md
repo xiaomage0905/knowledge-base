@@ -13,7 +13,10 @@ knowledge-base/
 ├── notes/               # 主题笔记（按领域分文件）
 │   └── dev-environment.md
 ├── troubleshooting/     # 踩坑记录：现象 → 原因 → 解法
-│   └── proxy-and-network.md
+│   ├── proxy-and-network.md
+│   └── git-push-via-api.md
+├── scripts/             # 可复用脚本
+│   └── sync-via-api.sh  # git push 被代理阻断时的同步脚本
 ├── qa/                  # 问题与解答（Q&A）
 └── snippets/            # 可直接复用的代码片段
 ```
@@ -45,6 +48,18 @@ git add notes/my-topic.md && git commit -m "docs: 新增 XXX 笔记" && git push
 
 ### 踩坑记录
 - [代理与网络访问问题](troubleshooting/proxy-and-network.md)
+- [git push 失败时的替代方案](troubleshooting/git-push-via-api.md)
+
+### 脚本
+- [sync-via-api.sh](scripts/sync-via-api.sh) —— 绕过 `git push`，用 Git Data API 同步文件
+
+## 开放 Issue
+
+见 [Issues 页面](https://github.com/xiaomage0905/knowledge-base/issues)。当前 Issue 列表：
+
+```bash
+gh issue list --repo xiaomage0905/knowledge-base --state open
+```
 
 ## 许可
 
